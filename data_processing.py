@@ -1,8 +1,8 @@
 import pandas as pd
-import numpy as np
-from sklearn.preprocessing import OneHotEncoder
+#import numpy as np
+#from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import minmax_scale,StandardScaler
-import streamlit as st
+#import streamlit as st
 
 def processing(data):
     # hapus loan_grade
