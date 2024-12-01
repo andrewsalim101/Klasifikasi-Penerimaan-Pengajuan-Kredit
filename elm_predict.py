@@ -18,6 +18,10 @@ def elm_predict(X, W, b, round_output=False):
   y = H @ b
 
   if round_output:
-      y = int(round(y))
+    y = int(round(y))
+    if y == 2:
+       y = 1
+    elif y == -1:
+      y = 0
 
   return y
