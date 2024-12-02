@@ -59,32 +59,13 @@ cb_person_cred_hist_length = st.number_input("Lama peminjaman kredit (bulan)",
                              max_value=30, 
                              value=None) 
 
-tempat_tinggal = { #person_home_ownership
-    "Sewa":"RENT",
-    "KPR/kredit": "MORTGAGE",
-    "Pemilik": "OWN",
-    "Lainnya": "OTHER"
-}
-tujuan = { #loan_intent
-    "Pendidikan": "EDUCATION",
-    "Pengobatan": "MEDICAL",
-    "Bisnis": "VENTURE",
-    "Pribadi": "PERSONAL",
-    "Penggabungan_Utang": "DEBTCONSOLIDATION",
-    "Renovasi_Rumah": "HOMEIMPROVEMENT"
-}
-gagal_bayar = { #cb_person_default_on_file
-    "Iya": "Y",
-    "Tidak": "N"
-}
-
 
 ## simpan sebagai pandas
 if st.button("Submit"):
     input_dict = {
-        "person_home_ownership": tempat_tinggal[person_home_ownership],
-        "loan_intent": tujuan[loan_intent],
-        "cb_person_default_on_file": gagal_bayar[cb_person_default_on_file],
+        "person_home_ownership": person_home_ownership,
+        "loan_intent": loan_intent,
+        "cb_person_default_on_file": cb_person_default_on_file,
         "person_age": person_age,
         "person_income": (person_income // 1_000),
         "person_emp_length": person_emp_length,
@@ -97,9 +78,10 @@ if st.button("Submit"):
     condition = True
     @st.dialog("Data belum terisi")
     def validasi():
+        st.write("Mohon isi data terlebih dahulu")
         return False
 
-    @st.dialog("Hasil Prediksi")
+    @st.dialog("Hasil Pengajuan")
     def program(val):
         st.write(val)
     
@@ -110,6 +92,29 @@ if st.button("Submit"):
                 break
 
     if "program" not in st.session_state and condition:
+        tempat_tinggal = { #person_home_ownership
+            "Sewa":"RENT",
+            "KPR/kredit": "MORTGAGE",
+            "Pemilik": "OWN",
+            "Lainnya": "OTHER"
+        }
+        tujuan = { #loan_intent
+            "Pendidikan": "EDUCATION",
+            "Pengobatan": "MEDICAL",
+            "Bisnis": "VENTURE",
+            "Pribadi": "PERSONAL",
+            "Penggabungan_Utang": "DEBTCONSOLIDATION",
+            "Renovasi_Rumah": "HOMEIMPROVEMENT"
+        }
+        gagal_bayar = { #cb_person_default_on_file
+            "Iya": "Y",
+            "Tidak": "N"
+        }
+
+        input_dict["person_home_ownership"] = tempat_tinggal[input_dict["person_home_ownership"]]
+        input_dict["loan_intent"] = tujuan[input_dict["loan_intent"]]
+        input_dict["cb_person_default_on_file"] = gagal_bayar
+
         df = pd.DataFrame(input_dict, index=[0])
 
         W = np.load("elm_W.npy")
@@ -124,4 +129,4 @@ if st.button("Submit"):
             output = 'ditolak'
 
         #st.write(f"after {output}")
-        program(f"Pengajuan peminjam: {output}")
+        program(f"Pengajuan peminjaman anda : {output}")
