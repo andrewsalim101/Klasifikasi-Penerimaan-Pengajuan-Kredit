@@ -19,9 +19,9 @@ def elm_predict(X, W, b, round_output=False):
 
   if round_output:
     y = int(round(y))
-    if y == 2:
+    if y > 1:
        y = 1
-    elif y == -1:
+    elif y < 0:
       y = 0
 
   return y
