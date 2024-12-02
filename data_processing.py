@@ -1,13 +1,12 @@
 import pandas as pd
-#import numpy as np
-#from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import minmax_scale,StandardScaler
-#import streamlit as st
+from sklearn.preprocessing import minmax_scale
 
 def processing(data):
-    # hapus loan_grade
-    #data.drop(['loan_grade'], axis=1)
+    """
+    data : data berupa dataframe pandas
 
+    Fungsi melakukan pemrosesan data agar sesuai untuk input model
+    """
     # buat loan-to-income ratio
     data['loan_to_income_ratio'] = data['loan_amnt'] / data['person_income']
 
@@ -17,67 +16,35 @@ def processing(data):
     # buat interest rate-to-loan amount ratio
     data['int_rate_to_loan_amt_ratio'] = data['loan_int_rate'] / data['loan_amnt']
 
+    # buat list berdasarkan nilai kategori
     merge_ohe_col = [
         'N', 'Y', 'MORTGAGE', 'OTHER', 'OWN', 'RENT', 'DEBTCONSOLIDATION',
        'EDUCATION', 'HOMEIMPROVEMENT', 'MEDICAL', 'PERSONAL', 'VENTURE'
     ]
 
+    # buat list kategori
     ohe_colums = ['cb_person_default_on_file', 'person_home_ownership','loan_intent']
 
+    # buat kolom dan data baru berdasarkan nilai kategori
     for category in merge_ohe_col:
         data[category] = 0.0
         for col in ohe_colums:
             if str(category) in str(data[col]):
                 data[category] = 1.0
 
-    #data = data.drop(ohe_colums, axis=1)
-    """
-    ohe = OneHotEncoder()
-    ohe.fit(data[ohe_colums])
+    # hapus kolom kategori
+    data = data.drop(ohe_colums, axis=1)
 
-    # Menggabungkan kategori dengan cara yang lebih aman
-    merge_ohe_col = []
-    for categories in ohe.categories_:
-        merge_ohe_col.extend(categories)
-
-    merge_ohe_col = np.array(merge_ohe_col)  # Menyusun kategori menjadi satu array
-    #print("Total kategori: ", len(merge_ohe_col))
-
-    # Memeriksa jika kolom memiliki lebih dari 1 kategori
-    ohe_colums = [col for col, categories in zip(ohe_colums, ohe.categories_) if len(categories) > 1]
-
-    # Refit OneHotEncoder jika ada kolom yang tidak valid
-    ohe.fit(data[ohe_colums])
-
-    merge_ohe_col = np.array([
-        'N', 'Y', 'MORTGAGE', 'OTHER', 'OWN', 'RENT', 'DEBTCONSOLIDATION',
-       'EDUCATION', 'HOMEIMPROVEMENT', 'MEDICAL', 'PERSONAL', 'VENTURE']
-    )
-    ohe_transform =  ohe.transform(data[ohe_colums]).toarray()
-
-    ####
-    st.write(ohe_transform)
-    st.write(merge_ohe_col)
-
-    ohe_data = pd.DataFrame(ohe_transform, columns=merge_ohe_col)
-    """
+    # buat urutan kolom menyesuaikan input untuk model
     new_col = ['N', 'Y', 'MORTGAGE', 'OTHER', 'OWN', 'RENT', 'DEBTCONSOLIDATION',
        'EDUCATION', 'HOMEIMPROVEMENT', 'MEDICAL', 'PERSONAL', 'VENTURE',
        'person_age', 'person_income', 'person_emp_length', 'loan_amnt',
        'loan_int_rate', 'loan_percent_income', 'cb_person_cred_hist_length',
        'loan_to_income_ratio', 'loan_to_emp_length_ratio',
        'int_rate_to_loan_amt_ratio']
-    
-    #data = pd.concat([ohe_data, data], axis=1)
-    data = data.drop(ohe_colums, axis=1)
     data = data[new_col]
-
-    normal_col = ['person_income','person_age','person_emp_length', 'loan_amnt','loan_int_rate','cb_person_cred_hist_length','loan_percent_income', 'loan_to_emp_length_ratio',
-        'int_rate_to_loan_amt_ratio']
-
-    #scaler_normal = StandardScaler()
-    #data.loc[:,normal_col] = scaler_normal.fit_transform(data.loc[:,normal_col])
     
+    # buat dict dan dataframe untuk nilai maksimum dan minimum data
     min_max_dict = {
         'N': [1.0, 0.0], 
         'Y': [1.0, 0.0], 
@@ -103,7 +70,12 @@ def processing(data):
         'int_rate_to_loan_amt_ratio': [23.22 / 35000, 5.42 / 500]
     }
     min_max_df = pd.DataFrame(min_max_dict)
+
+    # gabungkan data dengan data_min_max
     data = pd.concat([data, min_max_df], axis=0)
+
+    # normalisasis data
     data = minmax_scale(data.astype('float32'))
 
+    # kembalikan data pertama
     return data[0]
