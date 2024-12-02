@@ -3,74 +3,92 @@ import pandas as pd
 import numpy as np
 from elm_predict import elm_predict
 from data_processing import processing
-#import os
 
-##
+## masukkan data
 st.write("Klasifikasi Penerimaan Pengajuan Kredit")
 
-person_age = st.number_input("person_age",
-                             min_value=22, 
+person_age = st.number_input("Usia peminjam",
+                             min_value=20, 
                              max_value=65, 
                              value=None) 
 
-person_income = st.number_input("person_income",
-                                min_value=4000, 
-                                max_value=6000000, 
+person_income = st.number_input("Pendapatan tahunan (Rp)",
+                                min_value=4000_000, 
+                                max_value=6000000_000, 
                                 value=None)
 
-person_home_ownership = st.selectbox("person_home_ownership",
-                                     ("RENT", "MORTGAGE", "OWN", "OTHER"),
+person_home_ownership = st.selectbox("Jenis kepemilikan tempat tinggal saat ini",
+                                     ("Sewa", "KPR/kredit", "Pemilik", "Lainnya"),
                                      index=None,
-                                     placeholder="select option")
+                                     placeholder="pilih")
 
 
-person_emp_length = st.number_input("person_emp_length",
+person_emp_length = st.number_input("Lama bekerja (tahun)",
                              min_value=0.0, 
-                             max_value=38.0, 
+                             max_value=60.0, 
+                             value=None) 
+                             
+loan_intent = st.selectbox("Tujuan peminjaman",
+                            ("Pendidikan", "Pengobatan", "Bisnis", "Pribadi", "Penggabungan_Utang", "Renovasi_Rumah"),
+                            index=None,
+                            placeholder="pilih")
+
+
+loan_amnt = st.number_input("Jumlah pinjaman (Rp)",
+                             min_value=500_000, 
+                             max_value=35000_000, 
+                             value=None) #
+
+loan_int_rate = st.number_input("Suku bunga yang diajukan (tahun)",
+                             min_value=5.42, 
+                             max_value=23.22, 
                              value=None) 
 
-loan_intent = st.selectbox("loan_intent",
-                            ("EDUCATION", "MEDICAL", "VENTURE", "PERSONAL", "DEBTCONSOLIDATION", "HOMEIMPROVEMENT"),
-                            index=None,
-                            placeholder="select option")
-
-
-loan_amnt = st.number_input("loan_amnt",
-                             min_value=500, 
-                             max_value=35000, 
-                             value=None) #
-
-loan_int_rate = st.number_input("loan_int_rate",
-                             min_value=5.42, #
-                             max_value=23.22, 
-                             value=None) #
-
-loan_percent_income = st.number_input("loan_percent_income",
-                             min_value=0.0, 
+loan_percent_income = st.number_input("Persentase pendapatan yang disisihkan untuk melunasi",
+                             min_value=0.25, 
                              max_value=0.83, 
                              value=None) 
 
-cb_person_default_on_file = st.selectbox("cb_person_default_on_file",
-                            ("Y", "N"),
+cb_person_default_on_file = st.selectbox("Pernah mengalami gagal bayar",
+                            ("Iya", "Tidak"),
                             index=None,
-                            placeholder="select option")
+                            placeholder="pilih")
 
-cb_person_cred_hist_length = st.number_input("cb_person_cred_hist_length",
+cb_person_cred_hist_length = st.number_input("Lama peminjaman kredit (bulan)",
                              min_value=2, 
                              max_value=30, 
                              value=None) 
+
+tempat_tinggal = { #person_home_ownership
+    "Sewa":"RENT",
+    "KPR/kredit": "MORTGAGE",
+    "Pemilik": "OWN",
+    "Lainnya": "OTHER"
+}
+tujuan = { #loan_intent
+    "Pendidikan": "EDUCATION",
+    "Pengobatan": "MEDICAL",
+    "Bisnis": "VENTURE",
+    "Pribadi": "PERSONAL",
+    "Penggabungan_Utang": "DEBTCONSOLIDATION",
+    "Renovasi_Rumah": "HOMEIMPROVEMENT"
+}
+gagal_bayar = { #cb_person_default_on_file
+    "Iya": "Y",
+    "Tidak": "N"
+}
 
 
 ## simpan sebagai pandas
 if st.button("Submit"):
     input_dict = {
-        "person_home_ownership": person_home_ownership,
-        "loan_intent": loan_intent,
-        "cb_person_default_on_file": cb_person_default_on_file,
+        "person_home_ownership": tempat_tinggal[person_home_ownership],
+        "loan_intent": tujuan[loan_intent],
+        "cb_person_default_on_file": gagal_bayar[cb_person_default_on_file],
         "person_age": person_age,
-        "person_income": person_income,
+        "person_income": (person_income // 1_000),
         "person_emp_length": person_emp_length,
-        "loan_amnt": loan_amnt,
+        "loan_amnt": (loan_amnt // 1_000),
         "loan_int_rate": loan_int_rate,
         "loan_percent_income": loan_percent_income,
         "cb_person_cred_hist_length": cb_person_cred_hist_length
