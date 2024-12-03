@@ -67,9 +67,9 @@ if st.button("Submit"):
         "loan_intent": loan_intent,
         "cb_person_default_on_file": cb_person_default_on_file,
         "person_age": person_age,
-        "person_income": (person_income // 1_000),
+        "person_income": person_income,
         "person_emp_length": person_emp_length,
-        "loan_amnt": (loan_amnt // 1_000),
+        "loan_amnt": loan_amnt,
         "loan_int_rate": loan_int_rate,
         "loan_percent_income": loan_percent_income,
         "cb_person_cred_hist_length": cb_person_cred_hist_length
@@ -114,6 +114,8 @@ if st.button("Submit"):
         input_dict["person_home_ownership"] = tempat_tinggal[input_dict["person_home_ownership"]]
         input_dict["loan_intent"] = tujuan[input_dict["loan_intent"]]
         input_dict["cb_person_default_on_file"] = gagal_bayar
+        input_dict["person_income"] = input_dict["person_income"] // 1_000
+        input_dict["loan_amnt"] = input_dict["loan_amnt"] // 1_000
 
         df = pd.DataFrame(input_dict, index=[0])
 
